@@ -4,3 +4,5 @@ env/
 *.pyc
 .git
 .DS_Store
+build/*
+dist/*

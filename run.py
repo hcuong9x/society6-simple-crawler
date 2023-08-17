@@ -4,6 +4,8 @@ import shutil
 import time
 import sys
 
+import concurrent.futures
+from core.config import Config
 from core.usefull import get_data_in_file
 from inc.society6 import Society6
 
@@ -24,9 +26,20 @@ def app():
         sys.exit()
     print(f'Have {len(datas)} links')
 
-    for data in datas:
-        print(f'Processing data: {data}')
-        crawl_product(data)
+    # for data in datas:
+    #     print(f'Processing data: {data}')
+    #     crawl_product(data)
+
+    store_info = Config('config/store.ini')
+    num_threads = int(store_info.get_config('store', 'thread'))
+    
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_threads) as executor:
+        futures = []
+        for data in datas:
+            futures.append(executor.submit(crawl_product, data))
+
+        # Wait for all futures to complete
+        concurrent.futures.wait(futures)
 
     # End timer
     end_time = time.perf_counter()
